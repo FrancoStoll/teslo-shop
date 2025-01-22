@@ -1,11 +1,9 @@
-import { IsString } from "class-validator";
-import { AfterLoad, BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ProductImage } from './product-image.entity';
 
-@Entity()
+
+@Entity({ name: 'products' })
 export class Product {
-
-
-
 
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -15,67 +13,71 @@ export class Product {
     })
     title: string;
 
-    @Column("float", {
+    @Column('float',{
         default: 0
     })
-    price: number
+    price: number;
 
     @Column({
         type: 'text',
-        nullable: true,
+        nullable: true
     })
-    description: string
+    description: string;
 
-    @Column("text", {
-        unique: true,
-
+    @Column('text', {
+        unique: true
     })
-    slug: string
+    slug: string;
 
     @Column('int', {
         default: 0
     })
     stock: number;
 
-    @Column('text', {
+    @Column('text',{
         array: true
     })
-    sizes: string[]
+    sizes: string[];
 
     @Column('text')
-    gender: string
-
+    gender: string;
 
 
     @Column('text', {
         array: true,
         default: []
     })
-    tags: string[]
+    tags: string[];
 
-
-    //images
+    // images
+    @OneToMany(
+        () => ProductImage,
+        (productImage) => productImage.product,
+        { cascade: true, eager: true }
+    )
+    images?: ProductImage[];
 
 
     @BeforeInsert()
     checkSlugInsert() {
-        if (!this.slug) {
-            this.slug = this.title
+
+        if ( !this.slug ) {
+            this.slug = this.title;
         }
+
         this.slug = this.slug
             .toLowerCase()
-            .replaceAll(' ', '_')
-            .replaceAll("'", '')
+            .replaceAll(' ','_')
+            .replaceAll("'",'')
+
     }
 
     @BeforeUpdate()
     checkSlugUpdate() {
-
-        this.slug = this.title
+        this.slug = this.slug
             .toLowerCase()
-            .replaceAll(' ', '_')
-            .replaceAll("'", '')
-
+            .replaceAll(' ','_')
+            .replaceAll("'",'')
     }
 
 
